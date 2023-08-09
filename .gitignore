@@ -1,2 +1,4 @@
 venv
 other
+__pycache__
+db.sqlite3
