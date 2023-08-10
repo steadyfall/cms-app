@@ -32,7 +32,9 @@ class Plant(models.Model):
 
     @classmethod
     def get_default_pk(cls):
-        plant, created = cls.objects.get_or_create(zone="Unknown", name="Unknown")
+        plant, created = cls.objects.get_or_create(
+            zone=Zone.objects.get(pk=Zone.get_default_pk()), name="Unknown"
+        )
         return plant.pk
 
     def __str__(self):
