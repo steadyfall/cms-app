@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var docHeight = $(window).height();
+            var footerHeight = $('footer').height();
+            var footerTop = $('footer').position().top + footerHeight;
+            if (footerTop < docHeight) {
+                $('footer').css('margin-top', (docHeight - footerTop) + 'px');
+            }
+        });
+        $(window).bind('resize', resizeHandler);
+        function resizeHandler() {
+            var newWidth = $(document).width();
+            $('footer').css('width', newWidth);
+        }
+    </script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+
+    <!-- Font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/x-icon" href="{% static 'img/wwbmicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/auth.css' %}" />
+
+    <title>Sign Out</title>
+</head>
+
+<body class="d-flex flex-column">
+    <div class="vertical-center">
+        <div class="container-xl py-4" style="width:25%; height: 50%;">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} 
+                {% if message.tags == 'error' %}
+                class="alert alert-danger"
+                {% else %}
+                class="alert alert-{{ message.tags }}"
+                {% endif %} 
+                {% endif %}>
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div class="text-center mb-4">
+                <!-- <a href="#" class="navbar-brand navbar-brand-autodark"><img src="../../static/img/wwbmicon.ico"
+                        height="50" alt="Who Wants To Be A Millionaire?" /></a> -->
+            </div>
+            <div class="card card-md light-grey-bg">
+                <div class="card-body m-2">
+                    <h2 class="h2 text-center mb-4 whitesmoke">Sign out</h2>
+                    <div class="mb-3 whitesmoke text-center">
+                        You have successfully <span class="text-danger">signed out</span>.
+                    </div>
+                    <div class="mb-3 whitesmoke">
+                        Did you not mean to? &nbsp; &nbsp;
+                        <a href="{% url 'signin' %}" class="signBackInButton" role="button">Sign back in</a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center whitesmoke mt-3">
+                Return back to 
+                <a href="{% url 'test-page' %}" tabindex="-1" style="text-decoration: none; color: rgb(251, 255, 0);">main page.</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
