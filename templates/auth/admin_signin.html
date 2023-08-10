@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Sign In</title>
+    <!-- CSS files -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css" />
+    <style>
+        @import url("https://rsms.me/inter/inter.css");
+
+        :root {
+            --tblr-font-sans-serif: "Inter Var", -apple-system, BlinkMacSystemFont,
+                San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
+
+        body {
+            font-feature-settings: "cv03", "cv04", "cv11";
+        }
+    </style>
+</head>
+
+<body class="theme-dark d-flex flex-column">
+    <div class="page page-center">
+        <div class="container container-tight py-4">
+            {% if messages %}
+            <ul class="messages" style="list-style-type: none; padding: 0;">
+                {% for message in messages %}
+                    <li{% if message.tags %} 
+                    {% if message.tags == 'error' %}
+                    class="alert alert-danger"
+                    {% else %}
+                    class="alert alert-{{ message.tags }}"
+                    {% endif %} 
+                    {% endif %}>
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <div class="card card-md">
+                <div class="card-body">
+                    <h2 class="h2 text-center mb-4">Sign in to your account!</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="username" name="username" class="form-control"
+                                placeholder="Your username" autocomplete="off" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">
+                                Password
+                            </label>
+                            <div class="input-group input-group-flat">
+                                <input type="password" id="password" name="password" class="form-control"
+                                    placeholder="Your password" autocomplete="off" />
+                            </div>
+                        </div>
+                        <div class="form-footer">
+                            <button type="submit" class="btn btn-primary w-100">
+                                Sign in
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center text-muted mt-3">
+                Don't have account yet?
+                <a href="#" tabindex="-1">Contact your head administrator.</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Signout</title>
+    <!-- CSS files -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/css/tabler.min.css" />
+
+    <style>
+        @import url("https://rsms.me/inter/inter.css");
+
+        :root {
+            --tblr-font-sans-serif: "Inter Var", -apple-system, BlinkMacSystemFont,
+                San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
+
+        body {
+            font-feature-settings: "cv03", "cv04", "cv11";
+        }
+    </style>
+</head>
+
+<body class="theme-dark d-flex flex-column">
+    <div class="page page-center">
+        <div class="container-tight py-4">
+            <div class="empty">
+                <div class="empty-header">
+                    !
+                </div>
+                <p class="empty-title">You have successfully logged out.</p>
+                <div class="empty-action">
+                    <a href="{% url 'admin-signin' %}" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-login" width="24"
+                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2">
+                            </path>
+                            <path d="M20 12h-13l3 -3m0 6l-3 -3"></path>
+                        </svg>
+                        Sign in
+                    </a>
+                    &nbsp;
+                    &nbsp;
+                    <a href="#" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-www"
+                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path>
+                            <path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path>
+                            <path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path>
+                            <path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path>
+                            <path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path>
+                            <path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path>
+                            <path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path>
+                            <path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path>
+                            <path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path>
+                        </svg>
+                        Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
