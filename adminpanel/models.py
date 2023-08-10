@@ -39,7 +39,7 @@ class Plant(models.Model):
         return f"{self.name} ({self.zone})"
 
 
-class Cases(models.Model):
+class Case(models.Model):
     amount = models.PositiveIntegerField(
         verbose_name="Amount of particular case (in mL)",
         default=0,
