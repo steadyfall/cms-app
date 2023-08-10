@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "adminpanel.apps.AdminpanelConfig",
+    "authorizer.apps.AuthorizerConfig",
 ]
 
 MIDDLEWARE = [
