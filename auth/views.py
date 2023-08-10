@@ -45,7 +45,7 @@ def signin(request):
 
 def signout(request):
     if not request.user.is_authenticated:
-        return redirect("signin") # logout
+        return redirect("signin")  # logout
     auth.logout(request)
     return render(request, "auth/signout.html")
 
@@ -70,7 +70,8 @@ def admin_signin(request):
         if check:
             if not User.objects.filter(username=username).exists():
                 messages.warning(
-                    request, "You don't have an account. Contact the head administrator."
+                    request,
+                    "You don't have an account. Contact the head administrator.",
                 )
                 return redirect("admin-signin")
             user = auth.authenticate(username=username, password=password)

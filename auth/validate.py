@@ -1,5 +1,6 @@
 import re
 
+
 def usernameValidator(username: str):
     regex: str = r"^[\w.@+-]{1,149}$"
     if re.fullmatch(regex, username) is None:
@@ -16,10 +17,7 @@ def emailValidator(email: str):
 
 def passwordValidator(password: str):
     notNumericRegex: str = r"^.*\D.*$"
-    if (
-        len(password) >= 8
-        and (re.fullmatch(notNumericRegex, password) is not None)
-    ):
+    if len(password) >= 8 and (re.fullmatch(notNumericRegex, password) is not None):
         return True
     return False
 
