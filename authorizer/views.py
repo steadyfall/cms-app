@@ -32,7 +32,7 @@ def signin(request):
             user = auth.authenticate(username=username, password=password)
             if user is not None:
                 auth.login(request, user)
-                return redirect("signin")  # successful
+                return redirect("MainPage")  # successful
             else:
                 messages.error(request, "Wrong password. Try again.")
                 return redirect("signin")
@@ -45,7 +45,7 @@ def signin(request):
 
 def signout(request):
     if not request.user.is_authenticated:
-        return redirect("signin")  # logout
+        return redirect("MainPage")
     auth.logout(request)
     return render(request, "auth/signout.html")
 
