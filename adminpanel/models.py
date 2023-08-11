@@ -63,6 +63,8 @@ class Case(models.Model):
         related_name="all_cases",
         verbose_name="Case for plant",
     )
+    date_created = models.DateTimeField(default=timezone.now)
+    last_updated = models.DateTimeField(auto_now=True)
 
     @property
     def totalCases(self):
