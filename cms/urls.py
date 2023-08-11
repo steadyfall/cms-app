@@ -21,4 +21,5 @@ urlpatterns = [
     path("djadmin/", admin.site.urls),
     path("admin/", include("adminpanel.urls")),
     path("auth/", include("authorizer.urls")),
+    path("", include("cmsUser.urls")),
 ]
