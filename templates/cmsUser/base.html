@@ -39,8 +39,8 @@
                     <div class="navbar-nav mr-auto">
                         <a class="nav-item nav-link" href="{% url 'MainPage' %}">Home</a>
                         {% if user.is_authenticated %}
-                        <a class="nav-item nav-link" href="#">Add Records</a>
-                        <a class="nav-item nav-link" href="#">View Detailed Records</a>
+                        <a class="nav-item nav-link" href="{% url 'changeRecord' %}">Change Records</a>
+                        <a class="nav-item nav-link" href="{% url 'viewRecords' %}">View Detailed Records</a>
                         <!-- <a class="nav-item nav-link" href="#">Changelog</a> -->
                         {% endif %}
                     </div>
@@ -80,6 +80,10 @@
         {% block content %}{% endblock %}
         </div>
         <br style="clear: both" />
+        <br style="clear: both" />
+        <br style="clear: both" />
+        <br style="clear: both" />
+        <br style="clear: both" />  
     </main>
 </body>
 
