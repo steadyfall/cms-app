@@ -76,7 +76,7 @@
                     {% if request.user.profile.assigned_plant %}
                     <div class="col-sm">
                         <div class="col-sm d-flex">
-                            <div class="card flex-fill border-light" style="width: 50%; background-color: #3c3c3c;">
+                            <div class="card flex-fill border-light d-flex" style="background-color: #3c3c3c;">
                                 <div class="card-header my-3">
                                     <h4 class="text-offorange text-center">Plant Stats</h4>
                                 </div>
@@ -95,12 +95,16 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for individualCase in request.user.profile.assigned_plant.all_cases.all %}
+                                            {% for individualCase in cases %}
                                             <tr>
                                                 <th scope="row">{{ individualCase }}</th>
                                                 <td>{{ individualCase.count }}</td>
                                             </tr>
                                             {% endfor %}
+                                            <tr>
+                                                <th scope="row" class="w-1"></th>
+                                                <th scope="row">TOTAL = {{ total_count }}</th>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
