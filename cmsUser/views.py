@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import View
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from django.db.models import Sum
@@ -9,6 +10,12 @@ from django.db.models.functions import Concat
 
 from django.contrib import messages
 
+# Useful constants and functions
+PAGINATE_NO = 5
+
+
+
+# Views
 
 class MainPage(View):
     def context_creator(self):
@@ -27,7 +34,7 @@ class MainPage(View):
         context = dict(
             title=f"Plant Management{plant_name}",
             total_count=total_count,
-            cases=self.request.user.profile.assigned_plant.all_cases.order_by("-count"),
+            cases=self.request.user.profile.assigned_plant.all_cases.order_by("-count")[:7],
         )
         return context
 
@@ -161,3 +168,57 @@ class ChangeRecord(LoginRequiredMixin, View):
 
         messages.success(self.request, f"Updated {change_count} record{'s' if change_count > 1 else ''}.")
         return render(request, "cmsUser/updaterecords.html", self.context_creator())
+
+
+class ViewRecords(View):
+    def context_creator(self):
+        plant_name = (
+            " (" + self.request.user.profile.assigned_plant.name + ")"
+            if self.request.user.is_authenticated
+            else ""
+        )
+        plant_shortname = ""
+        if self.request.user.is_authenticated:
+            plant_shortname = " ("
+            [
+                plant_shortname := (lambda x: plant_shortname + x)(word[0])
+                for word in self.request.user.profile.assigned_plant.name.split()
+            ]
+            plant_shortname += ")"
+        manager = self.request.user.profile.assigned_plant.all_cases
+        total_count = (
+            manager.aggregate(
+                total_count=Sum("count")
+            )["total_count"]
+            if self.request.user.is_authenticated
+            else 0
+        )
+        order = ""
+        if self.request.GET.get("amt"):
+            order += "-amount" if not order else " -amount"
+        elif self.request.GET.get("count"):
+            order += "-count" if not order else " -count"
+        elif self.request.GET.get("updated"):
+            order += "-last_updated" if not order else " -last_updated"
+        elif self.request.GET.get("created"):
+            order += "-date_created" if not order else " -date_created"
+        order = "-count" if not order else order
+        paginator = Paginator(manager.order_by(order), PAGINATE_NO)
+        page = self.request.GET.get("page", 1)
+        try:
+            objects_list = paginator.page(page)
+        except PageNotAnInteger:
+            objects_list = paginator.page(1)
+        except EmptyPage:
+            objects_list = paginator.page(paginator.num_pages)
+        context = dict(
+            title=f"Plant Management{plant_name}",
+            total_count_as_of_now=total_count,
+            plant_shortname=plant_shortname,
+            cases=objects_list,
+        )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "cmsUser/viewrecords.html", self.context_creator())
+

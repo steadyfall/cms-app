@@ -1,0 +1,108 @@
+{% extends 'cmsUser/base.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <u style="text-underline-offset: 0.5rem;">
+            <h3><b>{{ request.user.profile.assigned_plant.name }}{{ plant_shortname }}</b></h3>
+        </u>
+    </div>
+</div>
+<br style="clear: both" />
+<div class="col-sm d-flex">
+    <div class="card flex-fill border-light d-flex" style="background-color: #3c3c3c;">
+        <div class="card-header my-3">
+            <div class="row justify-content-center">
+                <div class="col-6 text-center">
+                    <h4 class="text-offorange text-center">View Plant Records</h4>
+                </div>
+            </div>
+        </div>
+        <div class="card-body d-flex flex-column text-light">
+            <div class="row justify-content-start mb-1">
+                <div class="col-6 text-start ps-4 mb-2">
+                    Plant Name: <span class="badge text-bg-primary">{{ request.user.profile.assigned_plant.name }}</span>
+                    <br>
+                    Zone: <span class="badge text-bg-danger">{{ request.user.profile.assigned_plant.zone }}</span>
+                </div>
+                <!-- <div class="col-6 align-items-end text-center ps-5 pe-5 mb-2">
+                    <a class="btn btn-outline-info me-1" href="?amount=1">Case Amount &darr;</a>
+                    <a class="btn btn-outline-info me-1" href="?count=1">Count &darr;</a>
+                    <a class="btn btn-outline-info me-1" href="?updated=1">Last Updated &darr;</a>
+                    <a class="btn btn-outline-info" href="?created=1">Date Created &darr;</a>
+                </div> -->
+            </div>
+            
+            <table class="table table-vcenter table-striped text-center table-hover table-borderless">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Case</th>
+                        <th scope="col">Count</th>
+                        <th scope="col">Last updated</th>
+                        <th scope="col">Date Created</th>                            
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for individualCase in cases %}
+                    <tr>
+                        <td class="w-1"></td>
+                        <th scope="row">{{ individualCase }}</th>
+                        <td>{{ individualCase.count }}</td>
+                        <td>{{ individualCase.last_updated|date:"j/M/y, H:i e" }}</td>
+                        <td>{{ individualCase.date_created|date:"j/M/y, H:i e" }}</td>                            
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer mt-2">
+            <div class="d-flex align-items-center">
+                <p class="ms-4 mt-2 text-light">
+                    Showing 
+                    <span>
+                        {{ cases.start_index }}
+                    </span> to 
+                    <span>
+                        {{ cases.end_index}}
+                    </span> of 
+                    <span>
+                        {{ cases.paginator.count }}
+                    </span> entries
+                </p>
+                {% if cases.has_other_pages %}
+                <ul class="pagination theme-dark ms-auto mt-2 justify-content-end">
+                    <li class="page-item {% if cases.has_previous %}{% else %}disabled{% endif %}">
+                        <a class="page-link" href="{% if cases.has_previous %}?page={{ cases.previous_page_number }}{% else %}#{% endif %}" tabindex="-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M15 6l-6 6l6 6" />
+                            </svg>
+                        </a>
+                    </li>
+                    {% for num in cases.paginator.page_range %}
+                        {% if cases.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num > cases.number|add:'-2' and num < cases.number|add:'2' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if cases.has_next %}{% else %}disabled{% endif %}">
+                        <a class="page-link" href="{% if cases.has_next %}?page={{ cases.next_page_number }}{% else %}#{% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M9 6l6 6l-6 6" />
+                            </svg>
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
