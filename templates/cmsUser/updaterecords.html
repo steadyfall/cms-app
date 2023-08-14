@@ -1,0 +1,91 @@
+{% extends 'cmsUser/base.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <u style="text-underline-offset: 0.5rem;">
+            <h3><b>Update Records - {{ request.user.profile.assigned_plant.name }}{{ plant_shortname }}</b></h3>
+        </u>
+    </div>
+</div>
+<br style="clear: both" />
+<div class="col-sm d-flex">
+    <div class="card flex-fill border-light d-flex" style="background-color: #3c3c3c;">
+        <form method="post">
+            {% csrf_token %}
+            <div class="card-header my-3">
+                <h4 class="text-offorange text-center">Updating Plant Records</h4>
+            </div>
+            <div class="card-body d-flex flex-column text-light">
+                <div class="mb-1">
+                    Plant Name: <span class="badge text-bg-primary">{{ request.user.profile.assigned_plant.name }}</span>
+                    <br>
+                    Zone: <span class="badge text-bg-danger">{{ request.user.profile.assigned_plant.zone }}</span>
+                </div>
+                
+                    <table class="table table-vcenter table-striped text-center table-hover table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Case</th>
+                                <th scope="col">Count as of now</th>
+                                <th scope="col">Last updated</th>
+                                <th scope="col">Updated Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i, individualCase in cases %}
+                            <tr>
+                                <td class="w-1">{{ i }}</td>
+                                <th scope="row">{{ individualCase }}</th>
+                                <td>{{ individualCase.count }}</td>
+                                <td>{{ individualCase.last_updated|date:"j F Y, g:i A e" }}</td>
+                                <td class="row row-or-col-centered justify-content-center">
+                                    <input type="text" class="form-control bg-transparent w-35 text-center" 
+                                    placeholder="{{ individualCase.count }}" name="{{ individualCase.form_id }}" id="{{ individualCase.form_id }}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td class="w-1"></td>
+                                <td class="w-1"></td>
+                                <th scope="row">TOTAL (as of now) = {{ total_count_as_of_now }}</th>
+                                <td class="w-1"></td>
+                                <td class="w-1"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </div>
+            <div class="card-footer mt-2 mb-2 pb-2">
+                <div class="row justify-content-end">
+                    <div class="col-4 text-end me-4 mt-1">
+                        <button class="btn btn-outline-warning" type="submit" id="submitButton">Submit</button><br>
+                    </div>
+                </div>            
+            </div>
+        </form>
+    </div>
+</div>
+<script defer type="module">
+    import { nothingWritten, validWritten, invalidWritten, inputValid, onlyNumber } from "{% static 'js/recordValidator.js' %}";
+    {{ form_id_commands|safe }}
+    let form_ids = {{ form_id_list|safe }};
+    let ul = document.getElementById("allAlerts");
+    $('#submitButton').on('click', function (e) {
+        form_ids.map((value, index) => {
+            const inputEl = document.getElementById(form_ids[index]);
+            let isValid = inputValid(inputEl, onlyNumber(inputEl.value));
+            if (!isValid) {
+                e.preventDefault(); //prevent the default action
+                let warning = `<li class="alert alert-danger">Kindly check data before submitting.</li>`;
+                if (ul === null) {
+                    ul.innerHTML += warning;
+                }
+                if (ul.innerHTML.indexOf(warning) === -1) {
+                    ul.innerHTML += warning;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

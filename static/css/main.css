@@ -45,3 +45,35 @@ body {
 table tr td, table tr th{
     background-color: rgba(60,60,60,0.3) !important;
 }
+
+input {
+    color: white !important;
+}
+
+.form-control::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    font-size: small;
+    font-style: italic;
+    color: #c9b0f5;
+    opacity: 1; /* Firefox */
+}
+
+.form-control:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    font-size: small;
+    font-style: italic;
+    color: #c9b0f5;
+}
+
+.form-control::-ms-input-placeholder { /* Microsoft Edge */
+    font-size: small;
+    font-style: italic;
+    color: #c9b0f5;
+}
+
+.row-or-col-centered {
+    margin: 0 auto;
+    float: none;
+}
+
+.w-35 {
+    width: 35%;
+}
