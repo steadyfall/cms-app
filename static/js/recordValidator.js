@@ -15,9 +15,6 @@ export const invalidWritten = (e) => {
 }
 
 export const inputValid = (e, isValid) => {
-    if (e.value.length === 0) {
-        return nothingWritten(e);
-    }
     if (isValid) {
         validWritten(e);
     } else {
@@ -27,7 +24,7 @@ export const inputValid = (e, isValid) => {
 }
 
 export const onlyNumber = (val) => {
-    const patt = /^(\d|[1-9]\d{1,8})$/;
+    const patt = /(^$)|(^(\d|[1-9]\d{1,8})$)/;
     return patt.test(val);
 }
 

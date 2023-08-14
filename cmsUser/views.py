@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -6,6 +6,8 @@ from django.db.models import Sum
 from adminpanel.models import Plant, Case
 from django.db.models import CharField, Value as V
 from django.db.models.functions import Concat
+
+from django.contrib import messages
 
 
 class MainPage(View):
@@ -32,3 +34,130 @@ class MainPage(View):
     def get(self, request, *args, **kwargs):
         return render(request, "cmsUser/mainpage.html", self.context_creator())
 
+
+class ChangeRecord(LoginRequiredMixin, View):
+    id_prefix_for_case_count_input = "case-"
+
+    def context_creator(self):
+        def formIDQuery(identifier_string):
+            return self.request.user.profile.assigned_plant.all_cases.annotate(
+                form_id=Concat(
+                    V(
+                        f"{identifier_string}",
+                    ),
+                    "pk",
+                    output_field=CharField(),
+                ),
+            )
+
+        def formValidatorCodeGenerator(query):
+            return "\n".join(
+                list(
+                    query.annotate(
+                        form_cmd=Concat(
+                            V(
+                                f"$('#",
+                            ),
+                            "form_id",
+                            V(
+                                (
+                                    """').on("input focus keyup click change", function () {\n"""
+                                    """\tvar isValid = onlyNumber(this.value);\n"""
+                                    """\tconsole.log(isValid);\n"""
+                                    """\treturn inputValid(this, isValid);\n"""
+                                    "});"
+                                )
+                            ),
+                            output_field=CharField(),
+                        )
+                    )
+                    .order_by("id")
+                    .values_list("form_cmd", flat=True)
+                )
+            )
+
+        plant_shortname = ""
+        if self.request.user.is_authenticated:
+            plant_shortname = " ("
+            [
+                plant_shortname := (lambda x: plant_shortname + x)(word[0])
+                for word in self.request.user.profile.assigned_plant.name.split()
+            ]
+            plant_shortname += ")"
+        total_count = (
+            self.request.user.profile.assigned_plant.all_cases.aggregate(
+                total_count=Sum("count")
+            )["total_count"]
+            if self.request.user.is_authenticated
+            else 0
+        )
+        query_ready_for_form = formIDQuery(ChangeRecord.id_prefix_for_case_count_input)
+        form_id_list = list(
+            query_ready_for_form.order_by("id").values_list("form_id", flat=True)
+        )
+        form_id_commands = formValidatorCodeGenerator(query_ready_for_form)
+        context = dict(
+            title=f"Add Records{plant_shortname}",
+            total_count_as_of_now=total_count,
+            plant_shortname=plant_shortname,
+            cases=enumerate(query_ready_for_form.order_by("-amount"), start=1),
+            form_id_commands=form_id_commands,
+            form_id_list=form_id_list,
+        )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return render(request, "cmsUser/updaterecords.html", self.context_creator())
+
+    def post(self, request, *args, **kwargs):
+        cases = list(
+            filter(
+                lambda x: (ChangeRecord.id_prefix_for_case_count_input in x)
+                and request.POST.get(x).strip().isdigit(),
+                request.POST.keys(),
+            )
+        )
+        # print(cases)
+        if not cases:
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+        cases = list(
+            map(lambda x: x.strip(ChangeRecord.id_prefix_for_case_count_input), cases)
+        )
+        if not all(map(lambda x: x.isdigit(), cases)):
+            # print("Error: all(map(lambda x: x.isdigit(), cases))")
+            messages.error(self.request, "Invalid data is trying to be updated.")
+            return render(request, "cmsUser/updaterecords.html", self.context_creator())
+
+        cases = list(map(lambda x: int(x), cases))
+        if not all(
+            map(
+                lambda x: len(Case.objects.filter(pk=int(x))) == 1
+                and (
+                    Case.objects.filter(pk=int(x))[0].for_plant
+                    == self.request.user.profile.assigned_plant
+                ),
+                cases,
+            )
+        ):
+            # print("Error: len(Case.objects.filter(pk=int(x))) == 1")
+            messages.error(
+                self.request, "Non-existant/duplicate cases are trying to be updated."
+            )
+            return render(request, "cmsUser/updaterecords.html", self.context_creator())
+
+        change_count = 0
+        for case_id in cases:
+            key = f"{ChangeRecord.id_prefix_for_case_count_input}{case_id}"
+            value = int(request.POST.get(key))
+            case_fromCaseId = Case.objects.get(pk=case_id)
+            if case_fromCaseId.count == value:
+                continue
+            else:
+                # print("HHHH")
+                change_count += 1
+                case_fromCaseId.count = value
+                case_fromCaseId.save(update_fields=["count", "last_updated"])
+
+        messages.success(self.request, f"Updated {change_count} record{'s' if change_count > 1 else ''}.")
+        return render(request, "cmsUser/updaterecords.html", self.context_creator())
