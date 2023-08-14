@@ -14,8 +14,8 @@ from django.contrib import messages
 PAGINATE_NO = 5
 
 
-
 # Views
+
 
 class MainPage(View):
     def context_creator(self):
@@ -34,7 +34,9 @@ class MainPage(View):
         context = dict(
             title=f"Plant Management{plant_name}",
             total_count=total_count,
-            cases=self.request.user.profile.assigned_plant.all_cases.order_by("-count")[:7],
+            cases=self.request.user.profile.assigned_plant.all_cases.order_by("-count")[
+                :7
+            ],
         )
         return context
 
@@ -166,7 +168,10 @@ class ChangeRecord(LoginRequiredMixin, View):
                 case_fromCaseId.count = value
                 case_fromCaseId.save(update_fields=["count", "last_updated"])
 
-        messages.success(self.request, f"Updated {change_count} record{'s' if change_count > 1 else ''}.")
+        messages.success(
+            self.request,
+            f"Updated {change_count} record{'s' if change_count > 1 else ''}.",
+        )
         return render(request, "cmsUser/updaterecords.html", self.context_creator())
 
 
@@ -187,9 +192,7 @@ class ViewRecords(View):
             plant_shortname += ")"
         manager = self.request.user.profile.assigned_plant.all_cases
         total_count = (
-            manager.aggregate(
-                total_count=Sum("count")
-            )["total_count"]
+            manager.aggregate(total_count=Sum("count"))["total_count"]
             if self.request.user.is_authenticated
             else 0
         )
@@ -221,4 +224,3 @@ class ViewRecords(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, "cmsUser/viewrecords.html", self.context_creator())
-
