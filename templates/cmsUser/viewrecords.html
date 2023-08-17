@@ -36,7 +36,6 @@
             <table class="table table-vcenter table-striped text-center table-hover table-borderless">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
                         <th scope="col">Case</th>
                         <th scope="col">Count</th>
                         <th scope="col">Last updated</th>
@@ -46,7 +45,6 @@
                 <tbody>
                     {% for individualCase in cases %}
                     <tr>
-                        <td class="w-1"></td>
                         <th scope="row">{{ individualCase }}</th>
                         <td>{{ individualCase.count }}</td>
                         <td>{{ individualCase.last_updated|date:"j/M/y, H:i e" }}</td>
