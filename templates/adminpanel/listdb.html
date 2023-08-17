@@ -1,0 +1,200 @@
+{% extends "adminpanel/base.html" %}
+{% load utility %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="page-wrapper">
+        <!-- Page header -->
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            {% for numbering, obj in breadcrumbs %}
+                            {% if numbering == breadcrumbs|length %}
+                            <li class="breadcrumb-item active" aria-current="page">{{ obj|slicer:0 }}</li>
+                            {% else %}
+                            <li class="breadcrumb-item"><a href="{{ obj|slicer:1 }}">{{ obj|slicer:0 }}</a></li>
+                            {% endif %}
+                            {% endfor %}
+                        </ol>
+                    </nav>
+                    {% if db != 'user' %}
+                    <div class="col-1 mt-3 px-3">
+                        <a href="#" class="btn btn-indigo">Create</a> <!-- url 'adminDBObjectCreate' db -->
+                    </div>
+                    <div class="col-1 mt-3 py-2 text-end">
+                        <div class="form-label">Actions:</div>
+                    </div>
+                    <div class="col-2 mt-3">
+                        <select class="form-select" name="admin-action">
+                            <option value="-">---</option>
+                            <option value="Delete selected">Delete selected {{ recordVerboseNamePlural }}</option>
+                            <option value="Delete all in view">Delete all {{ recordVerboseNamePlural }} on page</option>
+                            <option value="Delete everything">Delete EVERY {{ recordVerboseName }}</option>
+                        </select>
+                    </div>
+                    <div class="col-1 mt-3">
+                        <button type="submit" class="btn btn-secondary" title="Run the selected action">Go</button>
+                    </div>
+                    {% endif %}
+                    <!-- <div class="col-3 mt-3 ms-auto">
+                        <form method="GET" action="#" autocomplete="off" novalidate>
+                            <div class="input-icon ms-5 d-inline-block">
+                                <span class="input-icon-addon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                        <path d="M21 21l-6 -6" />
+                                    </svg>
+                                </span>
+                                <input type="text" name="search" class="form-control" placeholder="Search record here."
+                                    aria-label="Search in website">
+                            </div>
+                        </form>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <!-- Page body -->
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row row-deck row-cards">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th><label class="form-check"><input class="form-check-input" type="checkbox"
+                                                id="allcheck" name="allcheck" value="0"></label></th>
+                                    <th>{{ recordVerboseName }}</th>
+                                    <th class="w-1"></th>
+                                    <th class="w-1"></th>
+                                    <th class="w-1"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in allRecords %}
+                                <tr>
+                                    <td><label class="form-check"><input class="form-check-input" type="checkbox"
+                                                id="indcheck" name="indcheck" value="{{record.key_primary}}"></label>
+                                    </td>
+                                    <td>{{ record }}</td>
+                                    {% if db != 'session' %}
+                                    <td><span class="badge bg-blue"><a style="text-decoration: none; color: #fff;"
+                                                href="#">Edit</a></span>
+                                        <!-- url 'adminDBObject' db record.key_primary -->
+                                    </td>
+                                    {% if db != 'lifeline' %}
+                                    <td><span class="badge bg-red"><a style="text-decoration: none; color: #fff;"
+                                                href="#">Delete</a></span>
+                                        <!-- url 'adminDBObjectDelete' db record.key_primary -->
+                                    </td>
+                                    {% endif %}
+                                    {% endif %}
+                                    <td><span class="badge bg-purple"><a style="text-decoration: none; color: #fff;"
+                                                href="#">History</a></span>
+                                        <!-- url 'adminDBObjectHistory' db record.key_primary -->
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <p class="m-0 text-muted">
+                            Showing
+                            <span>
+                                {{ allRecords.start_index }}
+                            </span> to
+                            <span>
+                                {{ allRecords.end_index}}
+                            </span> of
+                            <span>
+                                {{ allRecords.paginator.count }}
+                            </span> entries
+                        </p>
+                        {% if allRecords.has_other_pages %}
+                        <ul class="pagination m-0 ms-auto">
+                            {% if allRecords.has_previous %}
+                            <li class="page-item {% if allRecords.has_previous %}{% else %}disabled{% endif %}">
+                                <a class="page-link" href="?page={{ allRecords.previous_page_number }}" tabindex="-1"
+                                    aria-disabled="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M15 6l-6 6l6 6" />
+                                    </svg>
+                                    prev
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M15 6l-6 6l6 6" />
+                                    </svg>
+                                    prev
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% for num in allRecords.paginator.page_range %}
+                            {% if allRecords.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                            {% elif num > allRecords.number|add:'-2' and num < allRecords.number|add:'2' %} <li
+                                class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                {% endif %}
+                                {% endfor %}
+                                {% if allRecords.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ allRecords.next_page_number }}">
+                                        next
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M9 6l6 6l-6 6" />
+                                        </svg>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">
+                                        next
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M9 6l6 6l-6 6" />
+                                        </svg>
+                                    </a>
+                                </li>
+                                {% endif %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script>
+    $('#allcheck').change(function () {
+        if ($(this).prop('checked')) {
+            $('tbody tr td input[type="checkbox"]').each(function () {
+                $(this).prop('checked', true);
+            });
+        } else {
+            $('tbody tr td input[type="checkbox"]').each(function () {
+                $(this).prop('checked', false);
+            });
+        }
+    });
+</script>
+{% endblock %}
