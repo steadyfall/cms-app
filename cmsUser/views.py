@@ -105,11 +105,19 @@ class ChangeRecord(LoginRequiredMixin, View):
             query_ready_for_form.order_by("id").values_list("form_id", flat=True)
         )
         form_id_commands = formValidatorCodeGenerator(query_ready_for_form)
+        paginator = Paginator(query_ready_for_form.order_by("-amount"), PAGINATE_NO)
+        page = self.request.GET.get("page", 1)
+        try:
+            objects_list = paginator.page(page)
+        except PageNotAnInteger:
+            objects_list = paginator.page(1)
+        except EmptyPage:
+            objects_list = paginator.page(paginator.num_pages)
         context = dict(
             title=f"Add Records{plant_shortname}",
             total_count_as_of_now=total_count,
             plant_shortname=plant_shortname,
-            cases=enumerate(query_ready_for_form.order_by("-amount"), start=1),
+            cases=objects_list, #enumerate(query_ready_for_form.order_by("-amount"), start=1),
             form_id_commands=form_id_commands,
             form_id_list=form_id_list,
         )
