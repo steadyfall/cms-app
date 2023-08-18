@@ -57,7 +57,7 @@ def test(request):
 # Actual production sites
 
 class AdminListDB(SuperuserRequiredMixin, LoginRequiredMixin, View):
-    login_url = "adminLogin"
+    login_url = "admin-signin"
     raise_exception = True
 
     def get_url_kwargs(self):
