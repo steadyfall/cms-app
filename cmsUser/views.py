@@ -17,7 +17,7 @@ PAGINATE_NO = 5
 # Views
 
 
-class MainPage(View):
+class MainPage(LoginRequiredMixin, View):
     def context_creator(self):
         plant_name = (
             " (" + self.request.user.profile.assigned_plant.name + ")"
