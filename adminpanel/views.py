@@ -28,20 +28,20 @@ from .viewsExtra import (
     get_content_type_for_model,
 )
 
-# Useful constants 
+# Useful constants
 
 modelDict: dict[str, models.Model] = {
-    "zone":Zone,
-    "case":Case,
-    "plant":Plant,
-    "user":User,
+    "zone": Zone,
+    "case": Case,
+    "plant": Plant,
+    "user": User,
 }
 allowedModelNames = tuple(modelDict.keys())
 modelFormDict: dict[str, ModelForm] = {
-    "zone":ZoneForm,
-    "case":CaseForm,
-    "plant":PlantForm,
-    "user":User,
+    "zone": ZoneForm,
+    "case": CaseForm,
+    "plant": PlantForm,
+    "user": User,
 }
 addressOfPages = dict(
     adminMainPage=reverse_lazy("adminMainPage"),
@@ -60,11 +60,13 @@ SITE_NAME = "AdminPanel"
 
 # Test sites
 
+
 def test(request):
     return render(request, "auth/signin.html")
 
 
 # Actual production sites
+
 
 class AdminListDB(SuperuserRequiredMixin, LoginRequiredMixin, View):
     login_url = "admin-signin"
@@ -268,9 +270,19 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
             return redirect("adminDBObjectDelete", db=smallcaseDB, pk=pk)
 
         return redirect("adminListDB", db=smallcaseDB)
-    
 
-class AdminDBObjectCreate(View): pass
-class AdminDBObjectDelete(View): pass
-class AdminDBObjectHistory(View): pass
-class ShowLogDB(View): pass
+
+class AdminDBObjectCreate(View):
+    pass
+
+
+class AdminDBObjectDelete(View):
+    pass
+
+
+class AdminDBObjectHistory(View):
+    pass
+
+
+class ShowLogDB(View):
+    pass

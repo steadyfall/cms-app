@@ -117,7 +117,7 @@ class ChangeRecord(LoginRequiredMixin, View):
             title=f"Add Records{plant_shortname}",
             total_count_as_of_now=total_count,
             plant_shortname=plant_shortname,
-            cases=objects_list, #enumerate(query_ready_for_form.order_by("-amount"), start=1),
+            cases=objects_list,  # enumerate(query_ready_for_form.order_by("-amount"), start=1),
             form_id_commands=form_id_commands,
             form_id_list=form_id_list,
         )

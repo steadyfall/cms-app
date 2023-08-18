@@ -55,7 +55,9 @@ def admin_signin(request):
         if request.user.is_superuser:
             redirect("adminMainPage")
         else:
-            return redirect("MainPage") # successful but not superuser, so go back to MainPage
+            return redirect(
+                "MainPage"
+            )  # successful but not superuser, so go back to MainPage
 
     error: str = "Data is invalid. Try again."
     if request.method == "POST":
