@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -53,9 +53,9 @@ def signout(request):
 def admin_signin(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            redirect("test-page")
+            redirect("adminMainPage")
         else:
-            return redirect("test-page")
+            return redirect("MainPage") # successful but not superuser, so go back to MainPage
 
     error: str = "Data is invalid. Try again."
     if request.method == "POST":
@@ -78,8 +78,8 @@ def admin_signin(request):
             if user is not None:
                 auth.login(request, user)
                 if user.is_superuser:
-                    return redirect("test-page")
-                return redirect("test-page")
+                    return redirect("adminMainPage")
+                return redirect("MainPage")
             else:
                 messages.error(request, "Wrong password. Try again.")
                 return redirect("admin-signin")
@@ -92,6 +92,6 @@ def admin_signin(request):
 
 def admin_signout(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
-        return redirect("test-page")
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
     auth.logout(request)
     return render(request, "auth/admin_signout.html")
