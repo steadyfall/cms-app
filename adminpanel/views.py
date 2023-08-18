@@ -9,8 +9,12 @@ from django.db.models import F
 from django.contrib.auth.models import User
 from .models import Zone, Plant, Case
 
+from .forms import PlantForm, CaseForm, ZoneForm
+from django.forms import ModelForm
+
 from .mixins import SuperuserRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.admin.options import construct_change_message
 
 from .viewsExtra import (
     pk_checker,
@@ -33,6 +37,12 @@ modelDict: dict[str, models.Model] = {
     "user":User,
 }
 allowedModelNames = tuple(modelDict.keys())
+modelFormDict: dict[str, ModelForm] = {
+    "zone":ZoneForm,
+    "case":CaseForm,
+    "plant":PlantForm,
+    "user":User,
+}
 addressOfPages = dict(
     adminMainPage=reverse_lazy("adminMainPage"),
     test=reverse_lazy("test"),
@@ -146,7 +156,120 @@ class AdminListDB(SuperuserRequiredMixin, LoginRequiredMixin, View):
         return render(request, "adminpanel/listdb.html", context)
 
 
-class AdminDBObjectChange(View): pass
+class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
+    login_url = "adminLogin"
+    raise_exception = True
+    form_class = None
+    instance = None
+
+    def get_url_kwargs(self):
+        db, pk = str(self.kwargs["db"]), str(self.kwargs["pk"])
+        return (db, pk)
+
+    def get_instance(self):
+        """Return the initial data to use for forms on this view."""
+        return AdminDBObjectChange.instance
+
+    def get_form_class(self):
+        """Return the form class to use."""
+        return AdminDBObjectCreate.form_class
+
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(**self.get_form_kwargs())
+
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = {
+            "instance": self.get_instance(),
+        }
+
+        if self.request.method in ("POST", "PUT"):
+            kwargs.update(
+                {
+                    "data": self.request.POST,
+                    "files": self.request.FILES,
+                }
+            )
+        return kwargs
+
+    def context_creator(self):
+        smallcaseDB, pk = self.get_url_kwargs()
+        model = modelDict[smallcaseDB]
+        context = {
+            "form": self.get_form(),
+            "recordVerboseName": model._meta.verbose_name,
+            "recordVerboseNamePlural": model._meta.verbose_name_plural,
+        }
+        context.update(self.kwargs)
+        context["title"] = SITE_NAME + " - View " + context["recordVerboseName"].title()
+        breadcrumbs = [
+            ["Admin", addressOfPages["adminMainPage"]],
+            [smallcaseDB.title(), addressOfPages["adminListDB"]({"db": smallcaseDB})],
+            [
+                f"View {smallcaseDB.title()}",
+                addressOfPages["adminDBObject"]({"db": smallcaseDB, "pk": pk}),
+            ],
+        ]
+        context["breadcrumbs"] = list(
+            map(lambda x: (x[0], x[1]), list(enumerate(breadcrumbs, start=1)))
+        )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        smallcaseDB, pk = self.get_url_kwargs()
+        if smallcaseDB not in allowedModelNames:
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
+        model = modelDict[smallcaseDB]
+        if not pk_checker(pk, model):
+            return redirect("adminListDB", db=smallcaseDB)
+        setattr(AdminDBObjectCreate, "form_class", modelFormDict[smallcaseDB])
+        setattr(
+            AdminDBObjectChange,
+            "instance",
+            model.objects.get(pk=int(pk) if pk.isnumeric() else pk),
+        )
+        context = self.context_creator()
+        return render(request, "adminpanel/objectView.html", context)
+
+    def post(self, request, *args, **kwargs):
+        smallcaseDB, pk = self.get_url_kwargs()
+        if smallcaseDB not in allowedModelNames:
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
+        model = modelDict[smallcaseDB]
+        if not pk_checker(pk, model):
+            return redirect("adminListDB", db=smallcaseDB)
+
+        if request.POST.get("cancel"):
+            return redirect("adminListDB", db=smallcaseDB)
+
+        form = self.get_form()
+        if not form.is_valid():
+            messages.warning(request, "Kindly check your input before submitting.")
+            context = self.context_creator()
+            return render(request, "adminpanel/objectView.html", context)
+
+        if (request.POST.get("save") or request.POST.get("save_continue")) and (
+            len(form.changed_data) != 0
+        ):
+            saved_object = form.save()
+            change_message = construct_change_message(form, None, False)
+            log_change(request, saved_object, change_message)
+            pretty_msg = pretty_change_message(saved_object)
+            messages.success(request, pretty_msg)
+        if request.POST.get("save"):
+            return redirect("adminDBList", db=smallcaseDB)
+        elif request.POST.get("save_continue"):
+            return redirect("adminDBObject", db=smallcaseDB, pk=pk)
+
+        if request.POST.get("delete"):
+            return redirect("adminDBObjectDelete", db=smallcaseDB, pk=pk)
+
+        return redirect("adminListDB", db=smallcaseDB)
+    
+
 class AdminDBObjectCreate(View): pass
 class AdminDBObjectDelete(View): pass
 class AdminDBObjectHistory(View): pass
