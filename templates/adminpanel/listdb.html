@@ -81,17 +81,15 @@
                                                 id="indcheck" name="indcheck" value="{{record.key_primary}}"></label>
                                     </td>
                                     <td>{{ record }}</td>
-                                    {% if db != 'session' %}
                                     <td><span class="badge bg-blue"><a style="text-decoration: none; color: #fff;"
-                                                href="#">Edit</a></span>
+                                                href="{% url 'adminDBObject' db record.key_primary %}">Edit</a></span>
                                         <!-- url 'adminDBObject' db record.key_primary -->
                                     </td>
-                                    {% if db != 'lifeline' %}
+                                    {% if db != 'user' %}
                                     <td><span class="badge bg-red"><a style="text-decoration: none; color: #fff;"
                                                 href="#">Delete</a></span>
                                         <!-- url 'adminDBObjectDelete' db record.key_primary -->
                                     </td>
-                                    {% endif %}
                                     {% endif %}
                                     <td><span class="badge bg-purple"><a style="text-decoration: none; color: #fff;"
                                                 href="#">History</a></span>
