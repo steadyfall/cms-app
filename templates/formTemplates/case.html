@@ -1,0 +1,64 @@
+{% load static %}
+{% load utility %}
+{% if form.errors %}
+{{ form.non_field_errors }}
+<div class="alert alert-danger">
+    {% for field in form %}
+        {% for error in field.errors %}
+            <strong>
+                {% if field.name == 'amount' %}
+                Amount present in case (in mL)
+                {% elif field.name == 'for_plant' %}
+                What plant does this case belong to?
+                {% elif field.name == 'count' %}
+                What is the number of units of given case?
+                {% else %}
+                {% endif %}
+            </strong>: {{ error|escape }}<br>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.amount.id_for_label }}">
+        Amount present in case (in mL)
+    </div>
+    <input class="form-control ms-3" style="width: 15%;" name="{{ form.amount.html_name }}" id="{{ form.amount.html_name }}" placeholder="Write the amount here!" 
+    value="{% if form.instance.amount %}{{ form.instance.amount }}{% elif form.data.amount %}{{ form.data.amount }}{% elif form.amount.value %}{{ form.amount.value }}{% endif %}">
+</div>
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.for_plant.id_for_label }}">
+        What plant does this case belong to?
+    </div>
+    <select class="ms-3 w-50" name="{{ form.for_plant.html_name }}" id="{{ form.for_plant.html_name }}"
+        class="w-25 ms-3">
+        {% for val, name in form.for_plant.field.choices %}
+        <option value="{{ val }}">{{ name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.count.id_for_label }}">
+        What is the number of units of given case?
+    </div>
+    <input class="form-control ms-3" style="width: 15%;" name="{{ form.count.html_name }}" id="{{ form.count.html_name }}" placeholder="Write the no. of cases here!" 
+    value="{% if form.instance.count %}{{ form.instance.count }}{% elif form.data.count %}{{ form.data.count }}{% elif form.count.value %}{{ form.count.value }}{% endif %}">
+</div>
+<script type="module">
+    import { ForeignKeyTomSelectConfig } from "{% static 'js/formSettings.js' %}";
+    var PlantData = {% if form.instance.pk is not None %}{% if form.instance.for_plant %}{{ form.instance.for_plant.pk|safe }}{% endif %}{% elif form.data.for_plant %}{{ form.data.for_plant|safe }}{% else %}[]{% endif %};
+    new TomSelect('#for_plant', ForeignKeyTomSelectConfig("What plant does this case belong to?", "Remove this plant.", PlantData));
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>

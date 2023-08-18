@@ -1,0 +1,65 @@
+{% load static %}
+{% load utility %}
+{% if form.errors %}
+{{ form.non_field_errors }}
+<div class="alert alert-danger">
+    {% for field in form %}
+        {% for error in field.errors %}
+            <strong>
+                {% if field.name == 'zone' %}
+                What zone does this plant belong in?
+                {% elif field.name == 'name' %}
+                What is the name of this plant?
+                {% else %}
+                {% endif %}
+            </strong>: {{ error|escape }}<br>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.zone.id_for_label }}">
+        What zone does this plant belong in?
+    </div>
+    <select class="ms-3 w-25" name="{{ form.zone.html_name }}" id="{{ form.zone.html_name }}"
+        class="w-25 ms-3">
+        {% for val, name in form.zone.field.choices %}
+        <option value="{{ val }}">{{ name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.name.id_for_label }}">
+        What is the name of this plant?
+    </div>
+    <input class="form-control w-75 ms-3" name="{{ form.name.html_name }}" id="{{ form.name.html_name }}" placeholder="Write the option here!" 
+    value="{% if form.instance.name %}{{ form.instance.name }}{% elif form.data.name %}{{ form.data.name }}{% elif form.name.value %}{{ form.name.value }}{% endif %}">
+</div>
+<div class="mb-3 d-flex">
+    <!-- <div class="form-label required mt-2" id="{{ form.difficulty.id_for_label }}">
+        What is the difficulty of the question?
+    </div>
+    <select class="w-25 ms-3" name="{{ form.difficulty.html_name }}" id="{{ form.difficulty.html_name }}">
+        {% for val, name in form.difficulty.field.choices %}
+        <option value="{{ val }}">{{ name }}</option>
+        {% endfor %}
+    </select> -->
+</div>
+<script type="module">
+    import { ForeignKeyTomSelectConfig } from "{% static 'js/formSettings.js' %}";
+    var ZoneData = {% if form.instance.pk is not None %}{% if form.instance.zone %}{{ form.instance.zone.pk|safe }}{% endif %}{% elif form.data.zone %}{{ form.data.zone|safe }}{% else %}[]{% endif %};
+    new TomSelect('#zone', ForeignKeyTomSelectConfig("Which zone does this plant belong to?", "Remove this zone.", ZoneData));
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>

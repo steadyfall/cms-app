@@ -1,0 +1,40 @@
+{% load static %}
+{% load utility %}
+{% if form.errors %}
+{{ form.non_field_errors }}
+<div class="alert alert-danger">
+    {% for field in form %}
+    {% for error in field.errors %}
+    <strong>
+        {% if field.name == 'location' %}
+        Name of the zone/location
+        {% else %}
+        {% endif %}
+    </strong>: {{ error|escape }}<br>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.location.id_for_label }}">
+        What is the name of this zone/location?
+    </div>
+    <input class="form-control w-75 ms-3" name="{{ form.location.html_name }}" id="{{ form.location.html_name }}"
+        placeholder="Write the option here!"
+        value="{% if form.instance.location %}{{ form.instance.location }}{% elif form.data.location %}{{ form.data.location }}{% elif form.location.value %}{{ form.location.value }}{% endif %}">
+</div>
+<script>
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
