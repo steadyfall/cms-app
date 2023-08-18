@@ -1,0 +1,54 @@
+{% extends "adminpanel/base.html" %}
+{% load utility %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% for numbering, obj in breadcrumbs %}
+                        {% if numbering == breadcrumbs|length %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ obj|slicer:0 }}</li>
+                        {% else %}
+                        <li class="breadcrumb-item"><a href="{{ obj|slicer:1 }}">{{ obj|slicer:0 }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <form enctype="multipart/form-data" method="post" id="questionNew">
+            {% csrf_token %}
+            <div class="container-xl">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="card-title">View {{ recordVerboseName|titLe }}</h1>
+                        <a class="ms-auto" href="{% url 'adminDBObjectHistory' db pk %}">
+                            <button type="button" class="btn btn-orange ms-auto">Check History</button>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {{ form }}
+                    </div>
+                    <div><br></div>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-secondary ms-1" title="Cancel creating new object." name="cancel"
+                            value="1">Cancel</button>
+                        <button type="submit" class="btn btn-danger ms-1" title="Delete current object" name="delete"
+                            value="1"{% if db == 'lifeline' %}disabled{% endif %}>Delete</button>
+                        <button type="submit" class="btn btn-info ms-1" title="Save current work and continue editing"
+                            name="save_continue" id="save_continue" value="1"{% if db == 'lifeline' %}disabled{% endif %}>Save & Continue</button>
+                        <button type="submit" class="btn btn-primary ms-1" title="Create new object." name="create"
+                            value="1" {% if db == 'lifeline' %}disabled{% endif %}>Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
