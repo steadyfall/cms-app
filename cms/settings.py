@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.forms",
     "adminpanel.apps.AdminpanelConfig",
     "authorizer.apps.AuthorizerConfig",
 ]
@@ -54,6 +55,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "cms.urls"
 
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
