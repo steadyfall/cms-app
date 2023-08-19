@@ -99,7 +99,18 @@ class UserChangeForm(ModelForm):
         model = self._meta.model
         if self._newly_created:
             new_cleaned_data = deepcopy(self.cleaned_data)
-            pwd = deepcopy(new_cleaned_data["newPassword"])
+            pwd = (
+                deepcopy(new_cleaned_data["newPassword"])
+                if (
+                    new_cleaned_data["confirmNewPassword"]
+                    or new_cleaned_data["newPassword"]
+                )
+                and (
+                    new_cleaned_data["newPassword"]
+                    == new_cleaned_data["confirmNewPassword"]
+                )
+                else "change_l8r"
+            )
             del new_cleaned_data["confirmNewPassword"]
             del new_cleaned_data["changePassword"]
             del new_cleaned_data["newPassword"]
