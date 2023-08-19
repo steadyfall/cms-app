@@ -8,13 +8,14 @@ from django.db import models
 from django.db.models import F
 from django.contrib.auth.models import User
 from .models import Zone, Plant, Case
+from authorizer.models import Profile
 
-from .forms import PlantForm, CaseForm, ZoneForm
+from .forms import PlantForm, CaseForm, ZoneForm, UserChangeForm
 from django.forms import ModelForm
 
 from .mixins import SuperuserRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.admin.options import construct_change_message
+from django.contrib.admin.utils import construct_change_message
 
 from .viewsExtra import (
     pk_checker,
@@ -41,7 +42,7 @@ modelFormDict: dict[str, ModelForm] = {
     "zone": ZoneForm,
     "case": CaseForm,
     "plant": PlantForm,
-    "user": User,
+    "user": UserChangeForm,
 }
 addressOfPages = dict(
     adminMainPage=reverse_lazy("adminMainPage"),
@@ -164,6 +165,9 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
     form_class = None
     instance = None
 
+    def get_updatedAllowedModelNames(self):
+        return tuple(list(allowedModelNames) + ["profile"])
+
     def get_url_kwargs(self):
         db, pk = str(self.kwargs["db"]), str(self.kwargs["pk"])
         return (db, pk)
@@ -222,9 +226,13 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         smallcaseDB, pk = self.get_url_kwargs()
-        if smallcaseDB not in allowedModelNames:
+        if smallcaseDB not in self.get_updatedAllowedModelNames():
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
-        model = modelDict[smallcaseDB]
+        model = (
+            modelDict[smallcaseDB]
+            if smallcaseDB in allowedModelNames and smallcaseDB != "profile"
+            else Profile
+        )
         if not pk_checker(pk, model):
             return redirect("adminListDB", db=smallcaseDB)
         setattr(AdminDBObjectCreate, "form_class", modelFormDict[smallcaseDB])
@@ -238,9 +246,19 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         smallcaseDB, pk = self.get_url_kwargs()
-        if smallcaseDB not in allowedModelNames:
+        if smallcaseDB not in self.get_updatedAllowedModelNames():
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
-        model = modelDict[smallcaseDB]
+        model = (
+            modelDict[smallcaseDB]
+            if smallcaseDB in allowedModelNames and smallcaseDB != "profile"
+            else Profile
+        )
+        setattr(AdminDBObjectCreate, "form_class", modelFormDict[smallcaseDB])
+        setattr(
+            AdminDBObjectChange,
+            "instance",
+            model.objects.get(pk=int(pk) if pk.isnumeric() else pk),
+        )
         if not pk_checker(pk, model):
             return redirect("adminListDB", db=smallcaseDB)
 
@@ -249,14 +267,15 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
         form = self.get_form()
         if not form.is_valid():
-            messages.warning(request, "Kindly check your input before submitting.")
+            # messages.warning(request, "Kindly check your input before submitting.")
             context = self.context_creator()
             return render(request, "adminpanel/objectView.html", context)
 
         if (request.POST.get("save") or request.POST.get("save_continue")) and (
             len(form.changed_data) != 0
         ):
-            saved_object = form.save()
+            print(form.changed_data)
+            saved_object = form.save(commit=True)
             change_message = construct_change_message(form, None, False)
             log_change(request, saved_object, change_message)
             pretty_msg = pretty_change_message(saved_object)
