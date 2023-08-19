@@ -85,6 +85,12 @@
                                                 href="{% url 'adminDBObject' db record.key_primary %}">Edit</a></span>
                                         <!-- url 'adminDBObject' db record.key_primary -->
                                     </td>
+                                    {% if db == 'user' %}
+                                    <td><span class="badge bg-green"><a style="text-decoration: none; color: #fff;"
+                                                href="{% url 'adminDBObject' 'profile' record.profile.pk %}">Edit Profile</a></span>
+                                        <!-- url 'adminDBObject' db record.key_primary -->
+                                    </td>
+                                    {% endif %}
                                     {% if db != 'user' %}
                                     <td><span class="badge bg-red"><a style="text-decoration: none; color: #fff;"
                                                 href="#">Delete</a></span>
