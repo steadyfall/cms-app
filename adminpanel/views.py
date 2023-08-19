@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from .models import Zone, Plant, Case
 from authorizer.models import Profile
 
-from .forms import PlantForm, CaseForm, ZoneForm, UserChangeForm
+from .forms import PlantForm, CaseForm, ZoneForm, UserChangeForm, ProfileForm
 from django.forms import ModelForm
 
 from .mixins import SuperuserRequiredMixin
@@ -43,6 +43,7 @@ modelFormDict: dict[str, ModelForm] = {
     "case": CaseForm,
     "plant": PlantForm,
     "user": UserChangeForm,
+    "profile": ProfileForm,
 }
 addressOfPages = dict(
     adminMainPage=reverse_lazy("adminMainPage"),
@@ -203,7 +204,11 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
     def context_creator(self):
         smallcaseDB, pk = self.get_url_kwargs()
-        model = modelDict[smallcaseDB]
+        model = (
+            modelDict[smallcaseDB]
+            if smallcaseDB in allowedModelNames and smallcaseDB != "profile"
+            else Profile
+        )
         context = {
             "form": self.get_form(),
             "recordVerboseName": model._meta.verbose_name,
