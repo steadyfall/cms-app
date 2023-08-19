@@ -1,0 +1,45 @@
+{% extends "adminpanel/base.html" %}
+{% load utility %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% for numbering, obj in breadcrumbs %}
+                        {% if numbering == breadcrumbs|length %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ obj|slicer:0 }}</li>
+                        {% else %}
+                        <li class="breadcrumb-item"><a href="{{ obj|slicer:1 }}">{{ obj|slicer:0 }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <form enctype="multipart/form-data" method="post" id="newform">
+            {% csrf_token %}
+            <div class="container-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Create {{ recordVerboseName|titLe }}</h2>
+                        {{ form }}
+                    </div>
+                    <div><br></div>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-secondary" title="Cancel creating new object." name="cancel"
+                            value="1">Cancel</button>&nbsp;
+                        <button type="submit" class="btn btn-primary" title="Create new object." name="create"
+                            value="1" {% if db == 'profile' %}disabled{% endif %}>Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
