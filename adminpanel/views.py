@@ -291,7 +291,8 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
             return redirect("adminDBObject", db=smallcaseDB, pk=pk)
 
         if request.POST.get("delete"):
-            return redirect("adminDBObjectDelete", db=smallcaseDB, pk=pk)
+            if smallcaseDB not in ("profile", "user"):
+                return redirect("adminDBObjectDelete", db=smallcaseDB, pk=pk)
 
         return redirect("adminListDB", db=smallcaseDB)
 
