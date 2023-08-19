@@ -1,6 +1,7 @@
 from django.forms import ModelForm, fields, ValidationError
 from .models import Plant, Zone, Case
 from django.contrib.auth.models import User
+from authorizer.models import Profile
 from django.contrib.auth import password_validation
 from copy import deepcopy
 
@@ -105,6 +106,7 @@ class UserChangeForm(ModelForm):
             objectInstance = model.objects.create(**new_cleaned_data)
             objectInstance.set_password(pwd)
             objectInstance.save()
+            Profile.objects.create(user=objectInstance)
             return objectInstance
         else:
             objectInstance = self.instance
@@ -134,3 +136,14 @@ class UserChangeForm(ModelForm):
                     setattr(objectInstance, field, newData)
                 objectInstance.save()
             return objectInstance
+
+
+class ProfileForm(ModelForm):
+    template_name = "formTemplates/profile.html"
+
+    class Meta:
+        model = Profile
+        fields = [
+            "assigned_plant",
+        ]
+        exclude = ["user"]

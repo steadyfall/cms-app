@@ -1,0 +1,51 @@
+{% load static %}
+{% load utility %}
+{% if form.errors %}
+{{ form.non_field_errors }}
+<div class="alert alert-danger">
+    {% for field in form %}
+        {% for error in field.errors %}
+            <strong>
+                {% if field.name == 'assigned_plant' %}
+                To what plant does this user belong to?
+                {% else %}
+                {% endif %}
+            </strong>: {{ error|escape }}<br>
+        {% endfor %}
+    {% endfor %}
+</div>
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+<div class="mb-3 d-flex">
+    <div class="mt-2">
+        This profile is under which user?
+    </div>
+    <div class="form-control-plaintext ms-3">{% if form.instance.user %}{{ form.instance.user }}{% endif %}</div>
+</div>
+<div class="mb-3 d-flex">
+    <div class="form-label required mt-2" id="{{ form.assigned_plant.id_for_label }}">
+        To what plant does this user belong to?
+    </div>
+    <select class="ms-3 w-50" name="{{ form.assigned_plant.html_name }}" id="{{ form.assigned_plant.html_name }}">
+        {% for val, name in form.assigned_plant.field.choices %}
+        <option value="{{ val }}">{{ name }}</option>
+        {% endfor %}
+    </select>
+</div>
+<script type="module">
+    import { ForeignKeyTomSelectConfig } from "{% static 'js/formSettings.js' %}";
+    var PlantData = {% if form.instance.pk is not None %}{% if form.instance.assigned_plant %}{{ form.instance.assigned_plant.pk|safe }}{% endif %}{% elif form.data.assigned_plant %}{{ form.data.assigned_plant|safe }}{% else %}[]{% endif %};
+    new TomSelect('#assigned_plant', ForeignKeyTomSelectConfig("Which plant is this user assigned?", "Remove this plant.", PlantData));
+    $(document).ready(function () {
+        $(window).keydown(function (event) {
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
