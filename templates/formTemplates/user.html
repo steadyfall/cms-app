@@ -1,0 +1,112 @@
+{% load static %}
+{% load utility %}
+{% if form.errors %}
+{{ form.non_field_errors }}
+<div class="alert alert-danger">
+    {% for field in form %}
+    {% for error in field.errors %}
+    <strong>
+        {% if field.name == 'username' %}
+        Username
+        {% elif field.name == 'newPassword' %}
+        New Password
+        {% elif field.name == 'confirmNewPassword' %}
+        Confirm New Password
+        {% elif field.name == 'changePassword' %}
+        <span class="text-danger">CHANGE PASSWORD</span>
+        {% else %}
+        {% endif %}
+    </strong>: {{ error|escape }}<br>
+    {% endfor %}
+    {% endfor %}
+</div>
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+<div class="mb-3">
+    <div class="mb-1 d-flex">
+        <div class="form-label required mt-2" id="{{ form.username.id_for_label }}">
+            Username
+        </div>
+        <input class="form-control ms-3 w-25" name="{{ form.username.html_name }}"
+            id="{{ form.username.html_name }}" placeholder="Username here!"
+            value="{% if form.instance.username %}{{ form.instance.username }}{% elif form.data.username %}{{ form.data.username }}{% elif form.username.value %}{{ form.username.value }}{% endif %}">
+    </div>
+    <small class="form-hint">
+        {{ form.username.help_text|safe }}
+    </small>
+</div>
+<div class="mb-3">
+    <div class="mb-2 d-flex">
+        <div class="form-label mt-2" id="{{ form.first_name.id_for_label }}">
+            First Name
+        </div>
+        <input class="form-control ms-3 w-25" name="{{ form.first_name.html_name }}"
+            id="{{ form.first_name.html_name }}" placeholder="Your First name here!"
+            value="{% if form.instance.first_name %}{{ form.instance.first_name }}{% elif form.data.first_name %}{{ form.data.first_name }}{% elif form.first_name.value %}{{ form.first_name.value }}{% endif %}">
+        <small class="ms-4 form-hint">
+            Maximum of 150 characters.
+        </small>
+    </div>
+    <div class="mb-2 d-flex">
+        <div class="form-label mt-2" id="{{ form.last_name.id_for_label }}">
+            Last Name
+        </div>
+        <input class="form-control ms-3 w-25" name="{{ form.last_name.html_name }}"
+            id="{{ form.last_name.html_name }}" placeholder="Your Last name here!"
+            value="{% if form.instance.last_name %}{{ form.instance.last_name }}{% elif form.data.last_name %}{{ form.data.last_name }}{% elif form.last_name.value %}{{ form.last_name.value }}{% endif %}">
+        <small class="ms-4 form-hint">
+            Maximum of 150 characters.
+        </small>
+    </div>
+    <div class="mb-2 d-flex">
+        <div class="form-label mt-2" id="{{ form.email.id_for_label }}">
+            Email
+        </div>
+        <input class="form-control ms-3 w-25" name="{{ form.email.html_name }}"
+            id="{{ form.email.html_name }}" placeholder="Write email here!"
+            value="{% if form.instance.email %}{{ form.instance.email }}{% elif form.data.email %}{{ form.data.email }}{% elif form.email.value %}{{ form.email.value }}{% endif %}">
+    </div>
+</div>
+<div class="mb-3">
+    <div class="mb-2">
+        <div class="mb-1 d-flex">
+            <div class="form-label required mt-2" id="{{ form.newPassword.id_for_label }}">
+                New Password
+            </div>
+            <input class="form-control ms-3 w-25" type="password" name="{{ form.newPassword.html_name }}"
+                id="{{ form.newPassword.html_name }}" placeholder="Kindly enter your new password here."
+                value="{% if form.instance.newPassword %}{{ form.instance.newPassword }}{% elif form.data.newPassword %}{{ form.data.newPassword }}{% elif form.newPassword.value %}{{ form.newPassword.value }}{% endif %}">
+        </div>
+        <small class="form-hint">
+            <ul style="list-style-type: '- ';">
+                <li>Your password can’t be too similar to your other personal information.</li>
+                <li>Your password must contain at least 8 characters.</li>
+                <li>Your password can’t be a commonly used password.</li>
+                <li>Your password can’t be entirely numeric.</li>
+            </ul>
+        </small>
+    </div>
+    <div class="mb-2 d-flex">
+        <div class="form-label required mt-2" id="{{ form.confirmNewPassword.id_for_label }}">
+            Confirm New Password
+        </div>
+        <input class="form-control ms-3 w-25" type="password" name="{{ form.confirmNewPassword.html_name }}"
+            id="{{ form.confirmNewPassword.html_name }}" placeholder="Confirm your new password here."
+            value="{% if form.instance.confirmNewPassword %}{{ form.instance.confirmNewPassword }}{% elif form.data.confirmNewPassword %}{{ form.data.confirmNewPassword }}{% elif form.confirmNewPassword.value %}{{ form.confirmNewPassword.value }}{% endif %}">
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="{{ form.changePassword.html_name }}"
+        id="{{ form.changePassword.html_name }}">
+        <span class="form-check-label">
+            <span class="text-danger">CHANGE PASSWORD</span>
+        </span>
+        <span class="form-check-description">
+            On ticking this checkbox, you are agreeing to SET/CHANGE the password of the given user.
+            <br>Kindly inform them of the new password.
+        </span>
+    </label>
+</div>
