@@ -66,6 +66,9 @@ class Case(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     last_updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ["-amount"]
+
     @property
     def totalCases(self):
         return self._total
