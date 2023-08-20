@@ -1,0 +1,43 @@
+{% extends "adminpanel/base.html" %}
+{% load utility %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% for numbering, obj in breadcrumbs %}
+                        {% if numbering == breadcrumbs|length %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ obj|slicer:0 }}</li>
+                        {% else %}
+                        <li class="breadcrumb-item"><a href="{{ obj|slicer:1 }}">{{ obj|slicer:0 }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <form enctype="multipart/form-data" method="post" id="newform">
+            {% csrf_token %}
+            <div class="container-xl">
+                <div class="card alert alert-danger">
+                    <div class="card-body">
+                        <h1 class="mb-3 text-danger">Delete "{{ record }}" permanently?</h1>
+                        <p class="text-light">Are you sure you want to delete this {{ recordVerboseName }} permanently?</p>
+                    </div>
+                    <div><br></div>
+                    <div class="card-footer text-end">
+                        <button name="no" value="0" title="Don't delete this object." class="btn btn-primary me-2">No</button>
+                        <button name="yes" value="1" title="Delete this object permanently." class="btn btn-danger">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
