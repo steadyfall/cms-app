@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.db import models
 from django.db.models import F
+from django.db.models import Sum
 from django.contrib.auth.models import User
 from .models import Zone, Plant, Case
 from authorizer.models import Profile
@@ -286,7 +287,7 @@ class AdminDBObjectChange(SuperuserRequiredMixin, LoginRequiredMixin, View):
             pretty_msg = pretty_change_message(saved_object)
             messages.success(request, pretty_msg)
         if request.POST.get("save"):
-            return redirect("adminDBList", db=smallcaseDB)
+            return redirect("adminListDB", db=smallcaseDB)
         elif request.POST.get("save_continue"):
             return redirect("adminDBObject", db=smallcaseDB, pk=pk)
 
@@ -464,6 +465,27 @@ class AdminDBObjectDelete(SuperuserRequiredMixin, LoginRequiredMixin, View):
                 + f"""\nSuccessfully deleted 1 {object_name} and {deleted} objects related to it!""",
             )
         return redirect("adminListDB", db=smallcaseDB)
+
+
+class OverallReport(SuperuserRequiredMixin, LoginRequiredMixin, View):
+    login_url = "admin-signin"
+    raise_exception = True
+
+    def context_creator(self):
+        query = Zone.objects.annotate(total_zone_cases=Sum("plants_under__all_cases__count"))
+        zonesAll = []
+        for zone in query:
+            usable_for_template = (zone, zone.plants_under.annotate(total_plant_cases=Sum("all_cases__count")))
+            zonesAll.append(usable_for_template)
+        context = dict(
+            zonesAll=zonesAll,
+        )
+        return context
+    
+    def get(self, request, *args, **kwargs):
+        context = self.context_creator()
+        return render(request, "adminpanel/report.html", context)
+
 
 
 class AdminDBObjectHistory(View):
