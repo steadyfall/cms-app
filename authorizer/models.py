@@ -5,7 +5,7 @@ from adminpanel.models import Plant
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    assigned_plant = models.OneToOneField(
+    assigned_plant = models.ForeignKey(
         Plant,
         default=Plant.get_default_pk,
         on_delete=models.SET_DEFAULT,
