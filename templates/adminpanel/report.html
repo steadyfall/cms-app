@@ -1,0 +1,116 @@
+{% extends "adminpanel/base.html" %}
+{% load utility %}
+{% load static %}
+{% block content %}
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        {% for numbering, obj in breadcrumbs %}
+                        {% if numbering == breadcrumbs|length %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ obj|slicer:0 }}</li>
+                        {% else %}
+                        <li class="breadcrumb-item"><a href="{{ obj|slicer:1 }}">{{ obj|slicer:0 }}</a></li>
+                        {% endif %}
+                        {% endfor %}
+                    </ol>
+                </nav>
+            </div>
+            <div class="row">
+                <div class="col-1 mt-3 py-2 text-end">
+                    <h1>Report</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards mb-3">
+                {% for zone, plantsAll in zonesAll %}
+                {% if zone.location != 'Unknown' %}
+                <div class="card">
+                    <div class="card-status-top bg-warning"></div>
+                    <div class="card-header">
+                        <h1 class="col text-start mt-1">
+                            {{ zone.location }}
+                        </h1>
+                        <div class="col text-end">
+                            <span class="text-success text-nowrap" style="font-size: larger;">{{ zone.plants_under.all.count }}</span> plants, 
+                            <span class="text-primary text-nowrap" style="font-size: larger;">{% if zone.total_zone_cases %}{{ zone.total_zone_cases }}{% else %}0{% endif %}</span> cases
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if zone.plants_under.all %}
+                        <div class="row row-deck row-cols-4 justify-content-center row-cards mb-3">
+                            {% for plant in plantsAll %}
+                            {% if plant.name != 'Unknown' %}
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-status-start bg-primary"></div>
+                                    <div class="card-header ps-3 pe-0">
+                                        <h2 class="col text-start mt-1">
+                                            {{ plant.name }}
+                                        </h2>
+                                    </div>
+                                    <div class="card-body ps-3 pe-0">
+                                        <div class="row row-cols-2 mb-3 mt-1">
+                                            {% if plant.supervisor_profile.first %}
+                                            <div class="col"><em>Supervisor Name</em></div>
+                                            <div class="col text-center">{{ plant.supervisor_profile.first.user.first_name }} {{ plant.supervisor_profile.first.user.last_name }}</div>
+                                            <div class="col mt-1 text-nowrap"><em>Supervisor ID</em></div>
+                                            <div class="col mt-1 text-center">{{ plant.supervisor_profile.first.user.username }}</div>
+                                            {% endif %}
+                                            <div class="col mt-1"><em>Plant creation date</em></div>
+                                            <div class="col mt-1 text-center">{{ plant.date_created|date:"j F Y" }}</div>
+                                        </div>
+                                        {% if plant.all_cases.all %}
+                                        <table class="table table-vcenter text-center table-borderless">
+                                            <tbody>
+                                                {% for case in plant.all_cases.all %}
+                                                <tr>
+                                                    <th scope="row" class="text-start">{{ case }}</th>
+                                                    <td>{{ case.count }}</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        {% else %}
+                                        <div class="container">
+                                            <div class="text-danger">No cases associated with this plant.</div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-footer text-end pe-3 ps-0">
+                                        Total Production : 
+                                        <span class="text-success">
+                                            {% if plant.all_cases.all %}
+                                                {{ plant.total_plant_cases }}
+                                            {% else %}
+                                                0
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="row justify-content-center">
+                            <div class="col text-center mt-3 mb-3">NO PLANTS UNDER THIS ZONE!!</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">3</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
