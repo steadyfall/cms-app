@@ -7,11 +7,12 @@ from .views import (
     AdminDBObjectCreate,
     AdminDBObjectDelete,
     AdminDBObjectHistory,
+    OverallReport,
 )
 
 urlpatterns = [
     path("test/", test, name="test-page"),
-    path("", test, name="adminMainPage"),
+    path("", OverallReport.as_view(), name="adminMainPage"),
     path("apps/<str:db>/", AdminListDB.as_view(), name="adminListDB"),
     path("logs/", ShowLogDB.as_view(), name="adminListLogs"),
     path(
