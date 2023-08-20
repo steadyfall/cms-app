@@ -363,9 +363,7 @@ class AdminDBObjectCreate(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         smallcaseDB = self.get_url_kwargs()
-        if smallcaseDB not in allowedModelNames or smallcaseDB in (
-            "profile",
-        ):
+        if smallcaseDB not in allowedModelNames or smallcaseDB in ("profile",):
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
         model = modelDict[smallcaseDB]
         setattr(AdminDBObjectCreate, "form_class", modelFormDict[smallcaseDB])
@@ -374,9 +372,7 @@ class AdminDBObjectCreate(SuperuserRequiredMixin, LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         smallcaseDB = self.get_url_kwargs()
-        if smallcaseDB not in allowedModelNames or smallcaseDB in (
-            "profile",
-        ):
+        if smallcaseDB not in allowedModelNames or smallcaseDB in ("profile",):
             return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
         if request.POST.get("cancel"):
             return redirect("adminListDB", db=smallcaseDB)
@@ -393,8 +389,81 @@ class AdminDBObjectCreate(SuperuserRequiredMixin, LoginRequiredMixin, View):
         return redirect("adminListDB", db=smallcaseDB)
 
 
-class AdminDBObjectDelete(View):
-    pass
+class AdminDBObjectDelete(SuperuserRequiredMixin, LoginRequiredMixin, View):
+    login_url = "admin-signin"
+    raise_exception = True
+    form_class = None
+    instance = None
+
+    def get_url_kwargs(self):
+        db, pk = str(self.kwargs["db"]), str(self.kwargs["pk"])
+        return (db, pk)
+
+    def context_creator(self):
+        smallcaseDB, pk = self.get_url_kwargs()
+        model = modelDict[smallcaseDB]
+        obj = model.objects.get(pk=pk)
+        context = {
+            "record": obj,
+            "recordVerboseName": model._meta.verbose_name,
+            "recordVerboseNamePlural": model._meta.verbose_name_plural,
+        }
+        context.update(self.kwargs)
+        context["title"] = (
+            SITE_NAME + " - Confirm deleting " + context["recordVerboseName"] + "?"
+        )
+        breadcrumbs = [
+            ["Admin", addressOfPages["adminMainPage"]],
+            [smallcaseDB.title(), addressOfPages["adminListDB"]({"db": smallcaseDB})],
+            [
+                f"View {smallcaseDB.title()}",
+                addressOfPages["adminDBObject"]({"db": smallcaseDB, "pk": pk}),
+            ],
+            [
+                f"Delete '{obj}'",
+                addressOfPages["adminDBObjectDelete"]({"db": smallcaseDB, "pk": pk}),
+            ],
+        ]
+        context["breadcrumbs"] = list(
+            map(lambda x: (x[0], x[1]), list(enumerate(breadcrumbs, start=1)))
+        )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        smallcaseDB, pk = self.get_url_kwargs()
+        if smallcaseDB not in allowedModelNames or smallcaseDB in (
+            "profile",
+            "user",
+        ):
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
+        model = modelDict[smallcaseDB]
+        if not pk_checker(pk, model):
+            return redirect("adminListDB", db=smallcaseDB)
+        context = self.context_creator()
+        return render(request, "adminpanel/objectDelete.html", context)
+
+    def post(self, request, *args, **kwargs):
+        smallcaseDB, pk = self.get_url_kwargs()
+        if smallcaseDB not in allowedModelNames or smallcaseDB in (
+            "profile",
+            "user",
+        ):
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/admin/"))
+        model = modelDict[smallcaseDB]
+        if not pk_checker(pk, model):
+            return redirect("adminListDB", db=smallcaseDB)
+        if request.POST.get("yes") and not request.POST.get("no"):
+            object_given = model.objects.get(pk=pk)
+            object_name = object_given._meta.verbose_name
+            log_deletion(request, object_given, str(object_given))
+            pretty_msg = pretty_change_message(object_given)
+            deleted = object_given.delete()[0]
+            messages.success(
+                request,
+                pretty_msg
+                + f"""\nSuccessfully deleted 1 {object_name} and {deleted} objects related to it!""",
+            )
+        return redirect("adminListDB", db=smallcaseDB)
 
 
 class AdminDBObjectHistory(View):
