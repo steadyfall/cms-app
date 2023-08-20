@@ -472,20 +472,24 @@ class OverallReport(SuperuserRequiredMixin, LoginRequiredMixin, View):
     raise_exception = True
 
     def context_creator(self):
-        query = Zone.objects.annotate(total_zone_cases=Sum("plants_under__all_cases__count"))
+        query = Zone.objects.annotate(
+            total_zone_cases=Sum("plants_under__all_cases__count")
+        )
         zonesAll = []
         for zone in query:
-            usable_for_template = (zone, zone.plants_under.annotate(total_plant_cases=Sum("all_cases__count")))
+            usable_for_template = (
+                zone,
+                zone.plants_under.annotate(total_plant_cases=Sum("all_cases__count")),
+            )
             zonesAll.append(usable_for_template)
         context = dict(
             zonesAll=zonesAll,
         )
         return context
-    
+
     def get(self, request, *args, **kwargs):
         context = self.context_creator()
         return render(request, "adminpanel/report.html", context)
-
 
 
 class AdminDBObjectHistory(View):
