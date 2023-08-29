@@ -10,6 +10,9 @@ from django.db.models.functions import Concat
 
 from django.contrib import messages
 
+from authorizer.models import Profile
+from django.contrib.auth.models import User
+
 # Useful constants and functions
 PAGINATE_NO = 5
 
@@ -19,13 +22,17 @@ PAGINATE_NO = 5
 
 class MainPage(LoginRequiredMixin, View):
     def context_creator(self):
+        user = User.objects.get(pk=self.request.user.pk)
+        if not Profile.objects.filter(user=user).exists():
+            Profile.objects.create(user=user)
+        profile = Profile.objects.get(user=user)
         plant_name = (
-            " (" + self.request.user.profile.assigned_plant.name + ")"
+            " (" + profile.assigned_plant.name + ")"
             if self.request.user.is_authenticated
             else ""
         )
         total_count = (
-            self.request.user.profile.assigned_plant.all_cases.aggregate(
+            profile.assigned_plant.all_cases.aggregate(
                 total_count=Sum("count")
             )["total_count"]
             if self.request.user.is_authenticated
@@ -34,7 +41,7 @@ class MainPage(LoginRequiredMixin, View):
         context = dict(
             title=f"Plant Management{plant_name}",
             total_count=total_count,
-            cases=self.request.user.profile.assigned_plant.all_cases.order_by("-count")[
+            cases=profile.assigned_plant.all_cases.order_by("-count")[
                 :7
             ],
         )
@@ -48,8 +55,10 @@ class ChangeRecord(LoginRequiredMixin, View):
     id_prefix_for_case_count_input = "case-"
 
     def context_creator(self):
+        request_user = User.objects.get(pk=self.request.user.pk)
+        user_profile = Profile.objects.get(user=request_user)
         def formIDQuery(identifier_string):
-            return self.request.user.profile.assigned_plant.all_cases.annotate(
+            return user_profile.assigned_plant.all_cases.annotate(
                 form_id=Concat(
                     V(
                         f"{identifier_string}",
@@ -90,11 +99,11 @@ class ChangeRecord(LoginRequiredMixin, View):
             plant_shortname = " ("
             [
                 plant_shortname := (lambda x: plant_shortname + x)(word[0])
-                for word in self.request.user.profile.assigned_plant.name.split()
+                for word in user_profile.assigned_plant.name.split()
             ]
             plant_shortname += ")"
         total_count = (
-            self.request.user.profile.assigned_plant.all_cases.aggregate(
+            user_profile.assigned_plant.all_cases.aggregate(
                 total_count=Sum("count")
             )["total_count"]
             if self.request.user.is_authenticated
@@ -127,6 +136,8 @@ class ChangeRecord(LoginRequiredMixin, View):
         return render(request, "cmsUser/updaterecords.html", self.context_creator())
 
     def post(self, request, *args, **kwargs):
+        request_user = User.objects.get(pk=self.request.user.pk)
+        user_profile = Profile.objects.get(user=request_user)
         cases = list(
             filter(
                 lambda x: (ChangeRecord.id_prefix_for_case_count_input in x)
@@ -152,7 +163,7 @@ class ChangeRecord(LoginRequiredMixin, View):
                 lambda x: len(Case.objects.filter(pk=int(x))) == 1
                 and (
                     Case.objects.filter(pk=int(x))[0].for_plant
-                    == self.request.user.profile.assigned_plant
+                    == user_profile.assigned_plant
                 ),
                 cases,
             )
@@ -185,8 +196,10 @@ class ChangeRecord(LoginRequiredMixin, View):
 
 class ViewRecords(View):
     def context_creator(self):
+        request_user = User.objects.get(pk=self.request.user.pk)
+        user_profile = Profile.objects.get(user=request_user)
         plant_name = (
-            " (" + self.request.user.profile.assigned_plant.name + ")"
+            " (" + user_profile.assigned_plant.name + ")"
             if self.request.user.is_authenticated
             else ""
         )
@@ -195,10 +208,10 @@ class ViewRecords(View):
             plant_shortname = " ("
             [
                 plant_shortname := (lambda x: plant_shortname + x)(word[0])
-                for word in self.request.user.profile.assigned_plant.name.split()
+                for word in user_profile.assigned_plant.name.split()
             ]
             plant_shortname += ")"
-        manager = self.request.user.profile.assigned_plant.all_cases
+        manager = user_profile.assigned_plant.all_cases
         total_count = (
             manager.aggregate(total_count=Sum("count"))["total_count"]
             if self.request.user.is_authenticated
