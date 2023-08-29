@@ -1,3 +1,4 @@
+from __future__ import annotations
 from django.forms.widgets import CheckboxSelectMultiple
 from django.db.models.fields import BigAutoField, CharField
 from django.db import models
