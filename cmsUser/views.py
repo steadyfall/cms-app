@@ -32,18 +32,16 @@ class MainPage(LoginRequiredMixin, View):
             else ""
         )
         total_count = (
-            profile.assigned_plant.all_cases.aggregate(
-                total_count=Sum("count")
-            )["total_count"]
+            profile.assigned_plant.all_cases.aggregate(total_count=Sum("count"))[
+                "total_count"
+            ]
             if self.request.user.is_authenticated
             else 0
         )
         context = dict(
             title=f"Plant Management{plant_name}",
             total_count=total_count,
-            cases=profile.assigned_plant.all_cases.order_by("-count")[
-                :7
-            ],
+            cases=profile.assigned_plant.all_cases.order_by("-count")[:7],
         )
         return context
 
@@ -57,6 +55,7 @@ class ChangeRecord(LoginRequiredMixin, View):
     def context_creator(self):
         request_user = User.objects.get(pk=self.request.user.pk)
         user_profile = Profile.objects.get(user=request_user)
+
         def formIDQuery(identifier_string):
             return user_profile.assigned_plant.all_cases.annotate(
                 form_id=Concat(
@@ -103,9 +102,9 @@ class ChangeRecord(LoginRequiredMixin, View):
             ]
             plant_shortname += ")"
         total_count = (
-            user_profile.assigned_plant.all_cases.aggregate(
-                total_count=Sum("count")
-            )["total_count"]
+            user_profile.assigned_plant.all_cases.aggregate(total_count=Sum("count"))[
+                "total_count"
+            ]
             if self.request.user.is_authenticated
             else 0
         )
