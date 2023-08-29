@@ -29,17 +29,18 @@ from .viewsExtra import (
     daterange,
     get_content_type_for_model,
 )
+from typing import Dict
 
 # Useful constants
 
-modelDict: dict[str, models.Model] = {
+modelDict: Dict[str, models.Model] = {
     "zone": Zone,
     "case": Case,
     "plant": Plant,
     "user": User,
 }
 allowedModelNames = tuple(modelDict.keys())
-modelFormDict: dict[str, ModelForm] = {
+modelFormDict: Dict[str, ModelForm] = {
     "zone": ZoneForm,
     "case": CaseForm,
     "plant": PlantForm,
